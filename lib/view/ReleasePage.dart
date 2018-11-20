@@ -5,7 +5,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:wei_album/utils/DbHelper.dart';
 import 'package:wei_album/utils/TimeUtils.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:wei_album/widget/PictureWidget.dart';
+import 'package:wei_album/view/AddWaterMarkPage.dart';
+import 'package:wei_album/view/WaterMarkPage.dart';
 
 //发布页面
 class ReleasePage extends StatefulWidget {
@@ -168,7 +169,7 @@ class ReleasePageState extends State<ReleasePage> {
     bool flag = false;
     if (index == files.length && files.length < 6) flag = true;
     return GridTile(
-        header: flag == true?null:Align(
+        header: flag == true ? null : Align(
             alignment: Alignment.topRight,
             child: GestureDetector(
                 onTap: () {
@@ -176,7 +177,7 @@ class ReleasePageState extends State<ReleasePage> {
                 },
                 child: image2,
                 )),
-        child: flag == true?Center( //添加图片按钮
+        child: flag == true ? Center( //添加图片按钮
             child: Container(
                 child: GestureDetector(
                     onTap: () {
@@ -190,8 +191,8 @@ class ReleasePageState extends State<ReleasePage> {
                     ],),
                     ),
                 ),
-            ):buildPicItem(index),
-    );
+            ) : buildPicItem(index),
+        );
     if (index == files.length && files.length < 6) {
       return Center( //添加图片按钮
           child: Container(
@@ -239,19 +240,21 @@ class ReleasePageState extends State<ReleasePage> {
         fit: BoxFit.cover,
         width: ScreenUtil().setWidth(321),
         height: ScreenUtil().setHeight(321),
-    ),);
-      return Stack(children: <Widget>[
-          image1,
+        ),);
+    return Stack(children: <Widget>[
+      image1,
 //          Center(child: image1,),
-          Align(
-              alignment: Alignment.topRight,
-              child: GestureDetector(
-                  onTap: (){deletePic(index);},
-                  child: image2,
+      Align(
+          alignment: Alignment.topRight,
+          child: GestureDetector(
+              onTap: () {
+                deletePic(index);
+              },
+              child: image2,
               ),
           ),
-      ],
-          alignment: AlignmentDirectional.center,);
+    ],
+        alignment: AlignmentDirectional.center,);
   }
 
   //添加水印
@@ -295,6 +298,27 @@ class ReleasePageState extends State<ReleasePage> {
 
   //添加水印 具体操作
   addText() {
+    Navigator.of(context).push(new MaterialPageRoute(builder:(BuildContext context){
+//        return AddWaterMarkPage(addTextCallBack,files[0]);
+          return WaterMarkPage();
+    }));
+//    Image image = Image.file(files[0]);
+//    File file = files[0];
+//    print('******image****** $image');
+//    print('******file****** $file');
+//    ImageUtils.getInstance().init(image, file).then((_) {
+//      print('result: $_');
+//      setState(() {
+//      });
+//    });
+  }
+
+  void addTextCallBack(File file){
+      print('path : ${file}');
+      setState(() {
+          files.removeAt(0);
+          files.add(file);
+      });
   }
 
   //设置浏览权限
@@ -490,6 +514,7 @@ class ReleasePageState extends State<ReleasePage> {
     for (int i = 0; i < files.length; i++) {
       buffer.write('${files[i].path};');
     }
+    print('savePath -- : ${buffer.toString()}');
     String img_path = buffer.toString();
     String time = TimeUtils.getNowTime();
     print('A---time--- $time');
