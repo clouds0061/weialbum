@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pulltorefresh_flutter/pulltorefresh_flutter.dart';
 import 'package:dio/dio.dart';
-import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/rendering.dart';
@@ -10,6 +9,7 @@ import 'package:wei_album/utils/CommonUtils.dart';
 import 'package:wei_album/utils/DbHelper.dart';
 import 'package:wei_album/utils/TimeUtils.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:umeng/umeng.dart';
 
 class PullToRefreshWidget extends StatefulWidget {
   List<String> strs = new List();
@@ -165,11 +165,12 @@ class PullToRefreshWidgetState extends State<PullToRefreshWidget>
                       String listUrls = result[i]['listUrls'];
                       String releaseDate = result[i]['releaseDate'];
                       String shareDate = result[i]['shareDate'];
+                      String time = result[i]['time'];
                       list.add(new HomeListModel(
                           headUrl, nick_name, commodity_content,
                           CommonUtils.getList(listUrls),
                           TimeUtils.getTimeInDetails(releaseDate),
-                          TimeUtils.getTimeInDetails(shareDate)));
+                          TimeUtils.getTimeInDetails(shareDate),time));
                       print('----list----$list');
                       print('----releaseDate----$releaseDate');
                       setState(() {
@@ -461,32 +462,32 @@ class PullToRefreshWidgetState extends State<PullToRefreshWidget>
                           Expanded(
                               child: Text(''),
                               ),
-                          Align(
-                              alignment: Alignment.topRight,
-                              child: GestureDetector(
-                                  onTap: () {},
-                                  child: Container(
-                                      margin: EdgeInsets.only(
-                                          right: ScreenUtil().setWidth(99)),
-                                      child: Row(children: <Widget>[
-                                        GestureDetector(
-                                            onTap: () {},
-                                            child: Image.asset(
-                                                'images/1xdown.png',
-                                                width: ScreenUtil().setWidth(
-                                                    56),
-                                                height: ScreenUtil().setHeight(
-                                                    56),),
-                                            ),
-                                        Text('下载', style: TextStyle(
-                                            fontSize: 11.0,
-                                            color: Colors.black),
-                                            textAlign: TextAlign.left,
-                                            overflow: TextOverflow.ellipsis,),
-                                      ],),
-                                      ),
-                                  )
-                          )
+//                          Align(
+//                              alignment: Alignment.topRight,
+//                              child: GestureDetector(
+//                                  onTap: () {},
+//                                  child: Container(
+//                                      margin: EdgeInsets.only(
+//                                          right: ScreenUtil().setWidth(99)),
+//                                      child: Row(children: <Widget>[
+//                                        GestureDetector(
+//                                            onTap: () {},
+//                                            child: Image.asset(
+//                                                'images/1xdown.png',
+//                                                width: ScreenUtil().setWidth(
+//                                                    56),
+//                                                height: ScreenUtil().setHeight(
+//                                                    56),),
+//                                            ),
+//                                        Text('下载', style: TextStyle(
+//                                            fontSize: 11.0,
+//                                            color: Colors.black),
+//                                            textAlign: TextAlign.left,
+//                                            overflow: TextOverflow.ellipsis,),
+//                                      ],),
+//                                      ),
+//                                  )
+//                          )
                         ],),
                         ),
                     ),
@@ -499,7 +500,7 @@ class PullToRefreshWidgetState extends State<PullToRefreshWidget>
                 Expanded(
                     child: GestureDetector(
                         onTap: () {
-                          share();
+                          share(models[index-1]);
                         },
                         child: Container(
                             width: ScreenUtil().setWidth(842),
@@ -558,9 +559,26 @@ class PullToRefreshWidgetState extends State<PullToRefreshWidget>
   }
 
   /*分享到微信*/
-  void share() {
-
-
+  void share(HomeListModel model) {
+    String url = 'http://f.hiphotos.baidu.com/image/pic/item/d439b6003af33a8724e4b645cb5c10385243b5e0.jpg';
+    String imgUrl = model.listUrls[0];
+    String shareUrl = model.listUrls[0];
+    String time = model.time;
+    print('imageUrl -- $imgUrl');
+    String content = model.commodity_content;
+    if (imgUrl != null && shareUrl != null) {
+//        Umeng.wXShareWeb(url, url, '绘图故事之我妈妈');
+//      Umeng.wXShareWebDescr(imgUrl,imgUrl,'微商相册',content);
+//      Umeng.wXShareImage(url);
+      Umeng.wXShareImageText('测试测试',imgUrl,shareUrl).then((result){
+        print(result);
+        DbHelper.getInstance().openDataBase(DbHelper.tableName).then((path) {
+          DbHelper.getInstance().upData(time,TimeUtils.getNowTime());
+        });
+      });
+//      Umeng.wXShareWebDescr(url,url,'111','测试测试测试测试');
+//      Umeng.wXShareText(content);
+    }
 
   }
 

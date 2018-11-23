@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:wei_album/view/CustomImage.dart';
 import 'dart:ui' as ui;
@@ -26,6 +27,8 @@ class WaterMarkPageState extends State<WaterMarkPage> {
 
   @override
   Widget build(BuildContext context) {
+    ScreenUtil.instance = new ScreenUtil(width: 1242, height: 2208)
+      ..init(context);
     // TODO: implement build
     return MaterialApp(
         title: '',
@@ -68,40 +71,18 @@ class WaterMarkPageState extends State<WaterMarkPage> {
           child: Column(children: <Widget>[
             Expanded(
                 child:
-//                Center(child: Image.memory(
-//                    new Uint8List.view(imgBytes.buffer),
-//                    width: 555.0,
-//                    height: 555.0,
-//                    ),),
                 RepaintBoundary(
                     key: globalKey,
-                    child:
-                    CustomPaint(
-                        painter: customImage,
-                        size: Size(400.0, 600.0),
-                        ),
-                    )
-//                CustomPaint(
-//                    painter: customImage,
-//                    size: Size(400.0,600.0),
-//                    )
+                    child: addWaterImage()
+//                    CustomPaint(
+//                        painter: customImage,
+//                        size: Size(400.0, 600.0),
+//                        ),
+                )
             ),
-            Container(
-                width: double.infinity,
-                height: 80.0,
-                color: Colors.green,
-                child: GestureDetector(
-                    onTap: () {
-                      try {
-                        screenShot();
-//                        customImage.save();
-                      } catch (e) {
-                        print(e);
-                      }
-                    },
-                    child: Center(child: Text('保存'),),
-                    ),
-                ),
+            addText(),
+            choseTextSize(),
+            choseTextColor(),
           ],),);
     else
       return Container(
@@ -214,7 +195,8 @@ class WaterMarkPageState extends State<WaterMarkPage> {
   Future<Uint8List> _capturePng() async {
 //    RenderRepaintBoundary boundary = globalKey.currentContext
 //        .findRenderObject();
-    RenderRepaintBoundary boundary = globalKey.currentContext.findRenderObject();
+    RenderRepaintBoundary boundary = globalKey.currentContext
+        .findRenderObject();
     ui.Image image = await boundary.toImage();
     // 注意：png是压缩后格式，如果需要图片的原始像素数据，请使用rawRgba
     var byteData = await image.toByteData(format: ui.ImageByteFormat.png);
@@ -236,4 +218,32 @@ class WaterMarkPageState extends State<WaterMarkPage> {
       return file;
     });
   }
+
+  //添加水印部分
+  Widget addWaterImage() {
+    return Container(
+        width: ScreenUtil().setWidth(1242),
+        height: ScreenUtil().setHeight(1240),
+        child: Stack(children: <Widget>[
+            Image.file(null),
+        ],),
+    );
+  }
+
+  //文字编辑部分
+  Widget addText() {
+    return Container();
+  }
+
+  //选择文字颜色
+  Widget choseTextColor() {
+    return Container();
+  }
+
+  //选择文字大小
+  Widget choseTextSize() {
+    return Container();
+  }
+
+
 }

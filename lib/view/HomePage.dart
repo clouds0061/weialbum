@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:wei_album/model/HomeListModel.dart';
 import 'package:wei_album/utils/CommonUtils.dart';
@@ -7,7 +6,8 @@ import 'package:wei_album/utils/TimeUtils.dart';
 import 'package:wei_album/view/ReleasePage.dart';
 import 'package:wei_album/widget/PullToRefreshWidget.dart';
 import 'package:wei_album/widget/WaitingPage.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:device_info/device_info.dart';
+import 'package:umeng/umeng.dart';
 
 //动态页面
 class HomePage extends StatefulWidget {
@@ -19,11 +19,14 @@ class HomePageState extends State<HomePage> {
   List<HomeListModel> models = new List();
   List<String> strs = new List();
   bool dataReady = false;
+  String name = '';
+  final DeviceInfoPlugin infoPlugin = new DeviceInfoPlugin();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    initDeviceName();
     initData().then((data) {
       setState(() {
         dataReady = true;
@@ -47,7 +50,7 @@ class HomePageState extends State<HomePage> {
         home: Scaffold(
             appBar: AppBar(
                 backgroundColor: Colors.white,
-                title: Text('相册动态',style: TextStyle(color: Colors.black),),
+                title: Text('相册动态', style: TextStyle(color: Colors.black),),
                 centerTitle: true,
                 leading: GestureDetector(
                     onTap: () {
@@ -70,7 +73,8 @@ class HomePageState extends State<HomePage> {
                                 }));
                           },
                           child: Text(
-                              '发布动态', style: TextStyle(fontSize: 15.5,color: Colors.black),),
+                              '发布动态', style: TextStyle(
+                              fontSize: 15.5, color: Colors.black),),
                           ),
                       ),
                 ],
@@ -119,13 +123,54 @@ class HomePageState extends State<HomePage> {
         String listUrls = result[i]['listUrls'];
         String releaseDate = result[i]['releaseDate'];
         String shareDate = result[i]['shareDate'];
+        String time = result[i]['time'];
         models.add(new HomeListModel(headUrl, nick_name, commodity_content,
-            CommonUtils.getList(listUrls), TimeUtils.getTimeInDetails(releaseDate),
-            TimeUtils.getTimeInDetails(shareDate)));
+            CommonUtils.getList(listUrls),
+            TimeUtils.getTimeInDetails(releaseDate),
+            TimeUtils.getTimeInDetails(shareDate),time));
       }
     });
     print('----models----$models');
     return models;
   }
 
+  void init() {}
+
+  //获取设备信息
+  Future<String> initDeviceName() async {
+    print('******step******: 2');
+    try {
+      name = (await infoPlugin.iosInfo).model;
+    } catch (Exception) {
+      name = 'Failed to get device name';
+    } finally {
+      setState(() {
+        if (CommonUtils.isIPad(name)) {
+          initUmeng(1);
+        } else {
+          initUmeng(2);
+        }
+      });
+    }
+    return name;
+  }
+
+  void initUmeng(int i) async {
+    if (i == 1) {
+      String res = await Umeng.initUmIos("5bc569f3f1f556e25a000245", ""); //ipad
+      print('iPad:$res');
+    } else {
+      String res = await Umeng.initUmIos(
+          "5bc3ef79f1f55675130000af", ""); //iPhone
+      print('iPhone:$res');
+    }
+
+    String _string;
+    try {
+      //第一个参数是wxAppId 第二个参数是微博的AppId
+      _string = await Umeng.initWXShare("wx6d3f3256579a5f87", "3470678730");
+    } on Exception {
+      _string = 'wxShare failed!';
+    }
+  }
 }

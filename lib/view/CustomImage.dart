@@ -41,8 +41,10 @@ class CustomImage extends CustomPainter {
     _paintImage(
         image, new Rect.fromLTRB(0.0, 0.0, size.width, size.height), canvas,
         paint, boxFit);
-    canvas.drawCircle(new Offset(300.0,300.0),60.0,circle);
+//    canvas.drawCircle(new Offset(300.0,300.0),60.0,circle);
     drawText('测试测试', canvas);
+
+
   }
 
   @override
@@ -51,7 +53,7 @@ class CustomImage extends CustomPainter {
   }
 
   void save() {
-    _saveImage(recorder);
+//    _saveImage(recorder);
   }
 
   void _paintImage(ui.Image image, Rect outputRect, Canvas canvas, Paint paint,

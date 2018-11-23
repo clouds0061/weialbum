@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:wei_album/utils/DbHelper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashPage extends StatefulWidget {
   @override
@@ -9,6 +11,11 @@ class SplashPage extends StatefulWidget {
 class SplashPageState extends State<SplashPage> {
   @override
   Widget build(BuildContext context) {
+    SharedPreferences preferences =  null;
+    DbHelper.getInstance().initDataBase('weialbum').then((data){
+//      DbHelper.getInstance().insert2('"www.headUrl.com"','"小马"','"哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈"','"imgs"','"20181114"','"20181114"');
+//      DbHelper.getInstance().insert2('1','1','1','1','1','1');
+    });
     // TODO: implement build
     return Container(
         width: double.infinity,

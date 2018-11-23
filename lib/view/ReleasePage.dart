@@ -7,6 +7,7 @@ import 'package:wei_album/utils/TimeUtils.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:wei_album/view/AddWaterMarkPage.dart';
 import 'package:wei_album/view/WaterMarkPage.dart';
+import 'package:wei_album/view/addWatermark/AddWaterMarkMain.dart';
 
 //发布页面
 class ReleasePage extends StatefulWidget {
@@ -39,6 +40,8 @@ class ReleasePageState extends State<ReleasePage> {
 
   @override
   Widget build(BuildContext context) {
+    ScreenUtil.instance = new ScreenUtil(width: 1242, height: 2208)
+      ..init(context);
     con = context;
     // TODO: implement build
     return MaterialApp(
@@ -91,7 +94,7 @@ class ReleasePageState extends State<ReleasePage> {
             onTap: () {
               focusNode.unfocus();
               String input = controller.text;
-              print('----submit---- $input');
+//              print('----submit---- $input');
             },
             child: Column(children: <Widget>[
               buildTextField(), //文字编辑部分
@@ -259,6 +262,29 @@ class ReleasePageState extends State<ReleasePage> {
 
   //添加水印
   Widget buildAddText() {
+//    return Container(
+//        margin: EdgeInsets.only(top: 5.0),
+//        width: double.infinity,
+//        child: Column(children: <Widget>[
+//          Container(
+//              width: double.infinity,
+//              color: new Color(0xFFDFDFE2),
+//              height: 1.0,
+//              ),
+//          Padding(
+//              padding: EdgeInsets.only(top: ScreenUtil().setHeight(57),
+//                  bottom: ScreenUtil().setHeight(60),
+//                  left: ScreenUtil().setWidth(57),
+//                  right: ScreenUtil().setWidth(57)),
+//              child: Row(children: <Widget>[
+//                Text('谁可以看',style: TextStyle(color: Color(0xFF020202)),),
+//                Expanded(
+//                    child: Text(''),
+//                    ),
+//              ],),
+//              ),
+//        ],),
+//    );
     return Container(
         margin: EdgeInsets.only(top: 5.0),
         width: double.infinity,
@@ -298,10 +324,17 @@ class ReleasePageState extends State<ReleasePage> {
 
   //添加水印 具体操作
   addText() {
-    Navigator.of(context).push(new MaterialPageRoute(builder:(BuildContext context){
-//        return AddWaterMarkPage(addTextCallBack,files[0]);
-          return WaterMarkPage();
-    }));
+    if (files.length > 0) {
+      Navigator.of(context).push(
+          new MaterialPageRoute(builder: (BuildContext context) {
+            return AddWaterMarkPage(addTextCallBack, files[0]);
+//          return WaterMarkPage();
+//          return AddWaterMarkMain();
+          })).then((file) {
+//        files.removeAt(0);
+//        files.add(file);
+      });
+    }
 //    Image image = Image.file(files[0]);
 //    File file = files[0];
 //    print('******image****** $image');
@@ -313,12 +346,12 @@ class ReleasePageState extends State<ReleasePage> {
 //    });
   }
 
-  void addTextCallBack(File file){
-      print('path : ${file}');
-      setState(() {
-          files.removeAt(0);
-          files.add(file);
-      });
+  void addTextCallBack(File file) {
+    print('path : ${file}');
+    setState(() {
+      files.removeAt(0);
+      files.add(file);
+    });
   }
 
   //设置浏览权限

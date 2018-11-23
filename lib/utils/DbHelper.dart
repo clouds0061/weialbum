@@ -3,6 +3,7 @@ import 'package:path/path.dart';
 import 'dart:io';
 import 'dart:async';
 import 'package:path_provider/path_provider.dart';
+import 'package:wei_album/utils/TimeUtils.dart';
 
 
 class DbHelper {
@@ -34,22 +35,24 @@ class DbHelper {
     var _dataBasePath = (await getTemporaryDirectory()).path;
     String path = join(_dataBasePath, dbName);
     if (await Directory(dirname(path)).exists()) {
-      await deleteDatabase(path).then((_) async{//这部分后面必须删除，每次进入都会删库。。。what the fuck？
-        try {
-          await Directory((dirname(path))).create(recursive: true);
-          _dataBase = await openDatabase(
-              path, version: 1, onCreate: (Database db, int version) async {
-            await db.execute(
-                "CREATE TABLE $tableName (head_portrait_url TEXT,nick_name TEXT,"
-                    " commodity_content TEXT,listUrls TEXT,releaseDate TEXT,shareDate TEXT)");
-          });
-          print('----dataBase 2----$_dataBase');
-        } catch (e) {
-          print('----dataBase 3----$_dataBase');
-          print(e);
-        }
-      });
-//      openDataBase('');
+
+//      await deleteDatabase(path).then((_) async{//这部分后面必须删除，每次进入都会删库。。。what the fuck？
+//      try {
+//        await Directory((dirname(path))).create(recursive: true);
+//        _dataBase = await openDatabase(
+//            path, version: 1, onCreate: (Database db, int version) async {
+//          await db.execute(
+//              "CREATE TABLE $tableName (head_portrait_url TEXT,nick_name TEXT,"
+//                  " commodity_content TEXT,listUrls TEXT,releaseDate TEXT,shareDate TEXT,time TEXT)");
+//        });
+//        print('----dataBase 2----$_dataBase');
+//      } catch (e) {
+//        print('----dataBase 3----$_dataBase');
+//        print(e);
+//      }
+//      });
+    print('----dataBase is exists already----');
+      openDataBase('');
     } else {
       try {
         await Directory((dirname(path))).create(recursive: true);
@@ -57,7 +60,7 @@ class DbHelper {
             path, version: 1, onCreate: (Database db, int version) async {
           await db.execute(
               "CREATE TABLE $tableName (head_portrait_url TEXT,nick_name TEXT,"
-                  " commodity_content TEXT,listUrls TEXT,releaseDate TEXT,shareDate TEXT)");
+                  " commodity_content TEXT,listUrls TEXT,releaseDate TEXT,shareDate TEXT,time TEXT)");
         });
         print('----dataBase 2----$_dataBase');
       } catch (e) {
@@ -86,11 +89,12 @@ class DbHelper {
   /*插入数据*/
   insert(String head_portrait_url, String nick_name, String commodity_content,
       String listUrls, String releaseDate, String shareDate) async {
+    String time = TimeUtils.getNowTimeyyyy_MM_dd_HH_mm_ss();
 //    if(_dataBase == null) openDataBase(_dbName);
     await _dataBase.transaction((txn) async {
       await txn.rawInsert(
-          "INSERT INTO $tableName(head_portrait_url,nick_name,commodity_content,listUrls,releaseDate,shareDate) "
-              " VALUES ($head_portrait_url,$nick_name,$commodity_content,$listUrls,$releaseDate,$shareDate)");
+          "INSERT INTO $tableName(head_portrait_url,nick_name,commodity_content,listUrls,releaseDate,shareDate,time) "
+              " VALUES ($head_portrait_url,$nick_name,$commodity_content,$listUrls,$releaseDate,$shareDate,$time)");
     });
   }
 
@@ -98,10 +102,11 @@ class DbHelper {
   insert2(String head_portrait_url, String nick_name, String commodity_content,
       String listUrls, String releaseDate, String shareDate) async {
     print('----dataBase 4----$_dataBase');
+    String time = TimeUtils.getNowTimeyyyy_MM_dd_HH_mm_ss();
     if (_dataBase == null) openDataBase(tableName);
     _dataBase.rawInsert(
         "INSERT INTO $tableName(head_portrait_url,nick_name,commodity_content,listUrls,releaseDate,shareDate)"
-            "VALUES($head_portrait_url,$nick_name,$commodity_content,$listUrls,$releaseDate,$shareDate)");
+            "VALUES($head_portrait_url,$nick_name,$commodity_content,$listUrls,$releaseDate,$shareDate,$time)");
   }
 
   /*查找所有数据*/
@@ -111,8 +116,10 @@ class DbHelper {
     return list;
   }
 
-  updata() async {
-    _dataBase.rawUpdate('');
+  /*更新数据*/
+  upData(String time,String shareDate) async {
+    String sql = 'UPDATE $tableName SET shareDate = ? WHERE time = ?';
+    _dataBase.rawUpdate(sql,["$shareDate","$time"]);
   }
 
 }

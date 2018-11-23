@@ -13,10 +13,6 @@ class MyApp extends StatelessWidget {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
-    DbHelper.getInstance().initDataBase('weialbum').then((data){
-//      DbHelper.getInstance().insert2('"www.headUrl.com"','"小马"','"哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈"','"imgs"','"20181114"','"20181114"');
-//      DbHelper.getInstance().insert2('1','1','1','1','1','1');
-    });
 //    DbHelper.getInstance().openDataBase('weialbum');
     return MaterialApp(
         title: '',
@@ -29,5 +25,7 @@ class MyApp extends StatelessWidget {
         },
     );
   }
+
+
 
 }

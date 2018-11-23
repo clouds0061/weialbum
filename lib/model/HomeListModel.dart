@@ -13,7 +13,8 @@ class HomeListModel {
   List<String> listUrls;//商品图片url集合
   String releaseDate;//发布日期
   String shareDate;
+  String time;//详细时间，不会重复，当作标示
 
   HomeListModel(this.head_portrait_url, this.nick_name, this.commodity_content,
-      this.listUrls, this.releaseDate, this.shareDate); //分享日期
+      this.listUrls, this.releaseDate, this.shareDate,this.time); //分享日期
 }
