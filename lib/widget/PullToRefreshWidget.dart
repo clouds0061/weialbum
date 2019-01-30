@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pulltorefresh_flutter/pulltorefresh_flutter.dart';
 import 'package:dio/dio.dart';
 import 'dart:io';
@@ -167,10 +168,13 @@ class PullToRefreshWidgetState extends State<PullToRefreshWidget>
                       String shareDate = result[i]['shareDate'];
                       String time = result[i]['time'];
                       list.add(new HomeListModel(
-                          headUrl, nick_name, commodity_content,
+                          headUrl,
+                          nick_name,
+                          commodity_content,
                           CommonUtils.getList(listUrls),
                           TimeUtils.getTimeInDetails(releaseDate),
-                          TimeUtils.getTimeInDetails(shareDate),time));
+                          TimeUtils.getTimeInDetails(shareDate),
+                          time));
                       print('----list----$list');
                       print('----releaseDate----$releaseDate');
                       setState(() {
@@ -286,7 +290,7 @@ class PullToRefreshWidgetState extends State<PullToRefreshWidget>
     int count = models.length + 1;
     return ListView.builder(
     //ListView的Item
-        itemCount: count, //+2,
+        itemCount: count, //+1,
         controller: controller,
         physics: scrollPhysics,
         itemBuilder: buildList,
@@ -310,12 +314,14 @@ class PullToRefreshWidgetState extends State<PullToRefreshWidget>
     int crossAxisCount = 3;
 
     String url = models[index - 1].head_portrait_url;
-//    String str = '华为荣耀Magic2是华为荣耀探索未来科技的一个产品系列，2018年10月31日，华为荣耀发布该手机。2018年11月6日，华为荣耀Magic2系列产品将正式开售。'
-//        '售价分别是：6GB+128GB版3799元、8GB+128GB版4299元、8GB+256GB版4799元、荣耀Magic2（3D感光版）8GB+512GB 5799元。';
     List<String> listPath = models[index - 1].listUrls;
-    if (listPath[listPath.length - 1] == null ||
-        listPath[listPath.length - 1].isEmpty) listPath.removeLast();
-    print('=====listPath=====$listPath');
+    try {
+      if (listPath[listPath.length - 1] == null ||
+          listPath[listPath.length - 1].isEmpty) listPath.removeLast();
+      print('=====listPath=====$listPath');
+    } catch (e) {
+
+    }
     int girdCount = listPath.length;
     print('////girdCount////$girdCount');
     if (girdCount == 1) {
@@ -444,7 +450,8 @@ class PullToRefreshWidgetState extends State<PullToRefreshWidget>
                 Align(
                     alignment: Alignment.topRight,
                     child: Container(
-                        width: 240.0,
+                        width: ScreenUtil().setWidth(400),
+//                        color: Colors.orangeAccent,
                         margin: EdgeInsets.only(top: 0.0, left: 10.0),
                         child: Row(children: <Widget>[
                           Align(
@@ -495,12 +502,15 @@ class PullToRefreshWidgetState extends State<PullToRefreshWidget>
               ),
           //分享按钮
           Padding(padding: EdgeInsets.only(
-              left: ScreenUtil().setWidth(148), top: ScreenUtil().setHeight(63), right: ScreenUtil().setWidth(152)),
+              left: ScreenUtil().setWidth(148),
+              top: ScreenUtil().setHeight(63),
+              right: ScreenUtil().setWidth(152)),
               child: Row(children: <Widget>[
                 Expanded(
                     child: GestureDetector(
                         onTap: () {
-                          share(models[index-1]);
+                          CommonUtils.onEvent(0);
+                          share(models[index - 1]);
                         },
                         child: Container(
                             width: ScreenUtil().setWidth(842),
@@ -509,7 +519,8 @@ class PullToRefreshWidgetState extends State<PullToRefreshWidget>
                                 color: Colors.green,
                                 borderRadius: BorderRadius.circular(6.0),
                                 ),
-                            child: Center(child: Text('我要分享',style: TextStyle(color: Colors.white),),),
+                            child: Center(child: Text('我要分享',
+                                style: TextStyle(color: Colors.white),),),
                             ),
                         ),
                     ),
@@ -517,7 +528,10 @@ class PullToRefreshWidgetState extends State<PullToRefreshWidget>
               ),
           //最后的分割线
           Padding(padding: EdgeInsets.only(
-              left: 0.0, top: ScreenUtil().setHeight(61), right: 0.0,bottom: ScreenUtil().setHeight(61)),
+              left: 0.0,
+              top: ScreenUtil().setHeight(61),
+              right: 0.0,
+              bottom: ScreenUtil().setHeight(61)),
               child: Container(
                   color: new Color(0xFFDFDFE2),
                   height: 1.0,
@@ -570,16 +584,16 @@ class PullToRefreshWidgetState extends State<PullToRefreshWidget>
 //        Umeng.wXShareWeb(url, url, '绘图故事之我妈妈');
 //      Umeng.wXShareWebDescr(imgUrl,imgUrl,'微商相册',content);
 //      Umeng.wXShareImage(url);
-      Umeng.wXShareImageText('测试测试',imgUrl,shareUrl).then((result){
-        print(result);
-        DbHelper.getInstance().openDataBase(DbHelper.tableName).then((path) {
-          DbHelper.getInstance().upData(time,TimeUtils.getNowTime());
-        });
+      Clipboard.setData(new ClipboardData(text: content));
+      Umeng.wXShareImageText(content, imgUrl, shareUrl).then((result) {
+        print('----shareResult----$result');
+      });
+      DbHelper.getInstance().openDataBase(DbHelper.tableName).then((path) {
+        DbHelper.getInstance().upData(time, TimeUtils.getNowTime());
       });
 //      Umeng.wXShareWebDescr(url,url,'111','测试测试测试测试');
 //      Umeng.wXShareText(content);
     }
-
   }
 
 

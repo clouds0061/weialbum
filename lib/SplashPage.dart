@@ -22,7 +22,7 @@ class SplashPageState extends State<SplashPage> {
         height: double.infinity,
         color: Colors.white,
         child: Center(
-            child: Image.asset('images/mom3.png',fit: BoxFit.cover,),
+            child: Image.asset('images/Appicon.png',fit: BoxFit.cover,width: 100.0,height: 100.0,),
         ),
     );
   }

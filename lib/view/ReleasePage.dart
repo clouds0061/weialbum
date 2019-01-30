@@ -1,13 +1,19 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:umeng/umeng.dart';
+import 'package:wei_album/utils/CommonUtils.dart';
 import 'package:wei_album/utils/DbHelper.dart';
 import 'package:wei_album/utils/TimeUtils.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:wei_album/view/AddWaterMarkPage.dart';
-import 'package:wei_album/view/WaterMarkPage.dart';
-import 'package:wei_album/view/addWatermark/AddWaterMarkMain.dart';
+import 'dart:async';
+import 'package:flutter/rendering.dart';
+import 'dart:ui';
+import 'package:path_provider/path_provider.dart';
 
 //发布页面
 class ReleasePage extends StatefulWidget {
@@ -62,7 +68,10 @@ class ReleasePageState extends State<ReleasePage> {
                   Center(
                       child: GestureDetector(
                       //点击分享出去
-                          onTap: () {},
+                          onTap: () {
+                            CommonUtils.onEvent(0);
+                            share();
+                          },
                           child: Text('分享', style: TextStyle(
                               fontSize: 15.5, color: Colors.green),),
                           ),
@@ -291,6 +300,7 @@ class ReleasePageState extends State<ReleasePage> {
 //        height: 80.0,
         child: GestureDetector(
             onTap: () {
+              CommonUtils.onEvent(1);
               addText();
             },
             child: Column(children: <Widget>[
@@ -404,6 +414,7 @@ class ReleasePageState extends State<ReleasePage> {
         alignment: Alignment.bottomCenter,
         child: GestureDetector(
             onTap: () {
+              CommonUtils.onEvent(3);
               save();
             },
             child: Container(
@@ -501,27 +512,23 @@ class ReleasePageState extends State<ReleasePage> {
     switch (index) {
       case 1:
         print('点击了 从相册选择  ');
+        CommonUtils.onEvent(6);
         File image = await ImagePicker.pickImage(source: ImageSource.gallery)
             .then((file) {
-          String path = file.path;
-          filePaths.add(path);
-          print('---fielPath---$path');
-          files.add(file);
-          showPop = true;
-          setState(() {});
+          file.readAsBytes().then((list) {
+            writeToFile(list);
+          });
         });
         print('---image---${image.toString()}');
         break;
       case 2:
         print('点击了 拍照  ');
+        CommonUtils.onEvent(5);
         var image = ImagePicker.pickImage(source: ImageSource.camera).then((
             file) {
-          String path = file.path;
-          filePaths.add(path);
-          print('---fielPath---$path');
-          files.add(file);
-          showPop = true;
-          setState(() {});
+          file.readAsBytes().then((list) {
+            writeToFile(list);
+          });
         });
         break;
       case 3:
@@ -560,4 +567,61 @@ class ReleasePageState extends State<ReleasePage> {
       Navigator.pop(context);
     });
   }
+
+  Future writeToFile(Uint8List list) async {
+    Directory d = new Directory('${(await getTemporaryDirectory()) //新建 图书目录
+        .path}/img');
+    String timeNow = TimeUtils.getNowTimeyyyy_MM_dd_HH_mm_ss();
+    if (!(await d.exists())) d.create();
+    File file_new = new File('${(await getTemporaryDirectory())
+        .path}/img/images$timeNow.png');
+//    File file_new = new File(file.path);
+    if (await file_new.exists()) file_new.delete(recursive: true);
+    file_new.create(recursive: true);
+    file_new.writeAsBytes(list).then((file) {
+      String path = file.path;
+      filePaths.add(path);
+      print('---fielPath---$path');
+      files.add(file);
+      showPop = true;
+      setState(() {});
+    });
+  }
+
+  void share() {
+    String headUrl = 'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1165898706,1531320617&fm=11&gp=0.jpg';
+    String nick_name = '小微';
+    String content = controller.text;
+    StringBuffer buffer = new StringBuffer();
+    for (int i = 0; i < files.length; i++) {
+      buffer.write('${files[i].path};');
+    }
+    print('savePath -- : ${buffer.toString()}');
+    String img_path = buffer.toString();
+    String time = TimeUtils.getNowTime();
+    print('A---time--- $time');
+    print('A---img_path--- $img_path');
+    print('A---content--- $content');
+
+    String url = 'http://f.hiphotos.baidu.com/image/pic/item/d439b6003af33a8724e4b645cb5c10385243b5e0.jpg';
+    String imgUrl = files[0].path;
+    String shareUrl = files[0].path;
+    print('imageUrl -- $imgUrl');
+    if (imgUrl != null && shareUrl != null) {
+      Clipboard.setData(new ClipboardData(text: content));
+      Umeng.wXShareImageText(content,imgUrl,shareUrl).then((result){
+        print('----shareResult----$result');
+      });
+//      DbHelper.getInstance().openDataBase(DbHelper.tableName).then((path) {
+//        DbHelper.getInstance().upData(time,TimeUtils.getNowTime());
+//      });
+      DbHelper.getInstance().openDataBase(DbHelper.tableName).then((path) {
+        DbHelper.getInstance().insert2(
+            '"$headUrl"', '"$nick_name"', '"$content"', '"$img_path"', '"$time"',
+            '"$time"');
+        Navigator.pop(context);
+      });
+    }
+  }
+
 }

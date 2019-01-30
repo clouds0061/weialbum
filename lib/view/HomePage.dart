@@ -26,7 +26,9 @@ class HomePageState extends State<HomePage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    initDeviceName();
+    initDeviceName().then((string){
+
+    });
     initData().then((data) {
       setState(() {
         dataReady = true;
@@ -67,6 +69,7 @@ class HomePageState extends State<HomePage> {
                   Center(
                       child: GestureDetector(
                           onTap: () { //跳转到发布页面
+                            CommonUtils.onEvent(2);
                             Navigator.of(context).push(new MaterialPageRoute(
                                 builder: (BuildContext context) {
                                   return ReleasePage();
@@ -124,6 +127,12 @@ class HomePageState extends State<HomePage> {
         String releaseDate = result[i]['releaseDate'];
         String shareDate = result[i]['shareDate'];
         String time = result[i]['time'];
+
+
+
+
+
+
         models.add(new HomeListModel(headUrl, nick_name, commodity_content,
             CommonUtils.getList(listUrls),
             TimeUtils.getTimeInDetails(releaseDate),
@@ -143,6 +152,8 @@ class HomePageState extends State<HomePage> {
       name = (await infoPlugin.iosInfo).model;
     } catch (Exception) {
       name = 'Failed to get device name';
+
+
     } finally {
       setState(() {
         if (CommonUtils.isIPad(name)) {
@@ -157,18 +168,18 @@ class HomePageState extends State<HomePage> {
 
   void initUmeng(int i) async {
     if (i == 1) {
-      String res = await Umeng.initUmIos("5bc569f3f1f556e25a000245", ""); //ipad
+      String res = await Umeng.initUmIos("5bfd35f5f1f556c2e500038d", ""); //ipad
       print('iPad:$res');
     } else {
       String res = await Umeng.initUmIos(
-          "5bc3ef79f1f55675130000af", ""); //iPhone
+          "5bfd35f5f1f556c2e500038d", ""); //iPhone
       print('iPhone:$res');
     }
 
     String _string;
     try {
       //第一个参数是wxAppId 第二个参数是微博的AppId
-      _string = await Umeng.initWXShare("wx6d3f3256579a5f87", "3470678730");
+      _string = await Umeng.initWXShare("wx37bb53e81c347aad", "3470678730");
     } on Exception {
       _string = 'wxShare failed!';
     }

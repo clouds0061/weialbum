@@ -174,7 +174,7 @@ class AddWaterMarkPageState extends State<AddWaterMarkPage> {
         width: double.infinity,
         height: double.infinity,
         decoration: BoxDecoration(
-            image: DecorationImage(image: FileImage(file), fit: BoxFit.cover)
+            image: DecorationImage(image: FileImage(file), fit: BoxFit.fill)
         ),
         child: Stack(children: <Widget>[
           Align(
