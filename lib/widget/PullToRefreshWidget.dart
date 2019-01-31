@@ -56,6 +56,7 @@ class PullToRefreshWidgetState extends State<PullToRefreshWidget>
   String customHeaderTipText = "下拉刷新!";
   String customFooterTipText = "上拉加载!";
   String defaultRefreshBoxTipText = "放手后刷新!";
+  TriggerPullController triggerPullController = new TriggerPullController();
 
   Dio dio = new Dio();
   bool loadDataSuccess = false;
@@ -79,12 +80,14 @@ class PullToRefreshWidgetState extends State<PullToRefreshWidget>
   Widget build(BuildContext context) {
     ScreenUtil.instance = new ScreenUtil(width: 1242, height: 2208)
       ..init(context);
+    triggerPullController.pullAndPushState = new PullAndPushState();
     // TODO: implement build
     return Container(
         width: double.infinity,
         height: double.infinity,
         child: PullAndPush(
         //下拉列表默认头部
+            triggerPullController: triggerPullController,
             defaultRefreshBoxTipText: defaultRefreshBoxTipText,
         //下拉列表头部
             headerRefreshBox: buildHeaderRefreshBox(customHeaderTipText),
@@ -585,9 +588,17 @@ class PullToRefreshWidgetState extends State<PullToRefreshWidget>
 //      Umeng.wXShareWebDescr(imgUrl,imgUrl,'微商相册',content);
 //      Umeng.wXShareImage(url);
       Clipboard.setData(new ClipboardData(text: content));
-      Umeng.wXShareImageText(content, imgUrl, shareUrl).then((result) {
-        print('----shareResult----$result');
-      });
+      try{
+        Umeng.wXShareImage(imgUrl).then((re){
+          print('----shareResult----$re');
+        });
+        print("***********");
+      }catch (e){
+        print('----shareResult----${e.toString()}');
+      }
+//      Umeng.wXShareImageText(content, imgUrl, shareUrl).then((result) {
+//        print('----shareResult----$result');
+//      });
       DbHelper.getInstance().openDataBase(DbHelper.tableName).then((path) {
         DbHelper.getInstance().upData(time, TimeUtils.getNowTime());
       });

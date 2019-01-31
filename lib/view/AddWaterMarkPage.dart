@@ -127,7 +127,7 @@ class AddWaterMarkPageState extends State<AddWaterMarkPage> {
 //        .findRenderObject();
     RenderRepaintBoundary boundary = globalKey.currentContext
         .findRenderObject();
-    ui.Image image = await boundary.toImage();
+    ui.Image image = await boundary.toImage(pixelRatio: window.devicePixelRatio);
     // 注意：png是压缩后格式，如果需要图片的原始像素数据，请使用rawRgba
     var byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     var pngBytes = byteData.buffer.asUint8List();
